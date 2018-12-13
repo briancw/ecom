@@ -9,6 +9,7 @@ const sequelize = new Sequelize({
     port: '5432',
     password: dbPassword,
     logging: false,
+    operatorsAliases: false,
 })
 
 module.exports = sequelize
