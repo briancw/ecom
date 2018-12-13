@@ -1,6 +1,4 @@
 const {assert} = require('chai')
-// const chai = require('chai').use(require('chai-as-promised'))
-// const {assert, expect} = chai
 const {
     getCategories,
     createCategory,
