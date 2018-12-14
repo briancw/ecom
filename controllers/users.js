@@ -1,6 +1,11 @@
 const argon2 = require('argon2')
+const crypto = require('crypto')
+const redis = require('../models/redis.js')
 const sequelize = require('../models/db.js')
 const User = require('../models/user.js')
+const setAsync = require('util').promisify(redis.set).bind(redis)
+const getAsync = require('util').promisify(redis.get).bind(redis)
+const {sessionTime} = require('../config.js')
 
 // eslint-disable-next-line require-jsdoc
 async function register(user) {
@@ -50,19 +55,29 @@ async function login(user) {
         },
     })
 
-    let isValid = await argon2.verify(existingUser.passwordHash, password)
-    if (isValid) {
-        let token = 'a secret token'
+    if (!existingUser) {
+        return {success: false, error: 'invalid username or password'}
+    }
+
+    let isValidPassword = await argon2.verify(existingUser.passwordHash, password)
+    if (isValidPassword) {
+        let token = crypto.randomBytes(48).toString('base64')
+        await setAsync(token, true, 'EX', sessionTime)
 
         return {success: true, token}
     }
 
-    return {success: false, error: 'invalid password'}
+    return {success: false, error: 'invalid username or password'}
 }
 
 // eslint-disable-next-line require-jsdoc
-function authorize(token) {
-    return false
+async function authorize(token) {
+    let res = await getAsync(token)
+    if (res) {
+        return {success: true}
+    }
+
+    return {success: false}
 }
 
 module.exports = {

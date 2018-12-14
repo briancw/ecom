@@ -65,3 +65,64 @@ describe('Register a new account', () => {
         assert.deepStrictEqual(result5, {success: false, error: 'weak password'})
     })
 })
+
+describe('Login to an existing account', () => {
+    let userTemplate = {
+        email: 'brian@whicheloe.us',
+        password: '123abcDEF!',
+    }
+
+    it('Should return a success message and token when valid login credentials are used', async () => {
+        let user = Object.assign({}, userTemplate)
+        let result = await login(user)
+        assert.strictEqual(result.success, true)
+        assert.exists(result.token)
+        assert.isString(result.token)
+        assert.lengthOf(result.token, 64)
+    })
+
+    it('Should return an error when an invalid password is used', async () => {
+        let user = Object.assign({}, userTemplate)
+        user.password = 'zzzz'
+
+        let result = await login(user)
+        assert.strictEqual(result.success, false)
+        assert.strictEqual(result.error, 'invalid username or password')
+    })
+
+    it('Should return an error when an invalid email is used', async () => {
+        let user = Object.assign({}, userTemplate)
+        user.email = 'test@example.org'
+
+        let result = await login(user)
+        assert.strictEqual(result.success, false)
+        assert.strictEqual(result.error, 'invalid username or password')
+    })
+})
+
+describe('Authorize a token received from login', () => {
+    let token
+    before('Get a token', async () => {
+        let user = {
+            email: 'brian@whicheloe.us',
+            password: '123abcDEF!',
+        }
+        let result = await login(user)
+        token = result.token
+    })
+
+    it('Should return true when supplied with a valid token', async () => {
+        let authorized = await authorize(token)
+        assert.deepStrictEqual(authorized, {success: true})
+    })
+
+    it('Should return false when supplied an invalid token', async () => {
+        let token = 'invalid token'
+        let result = await authorize(token)
+        assert.deepStrictEqual(result, {success: false})
+    })
+
+    // it('Should return false when supplied with an expired token', () => {
+    //     // TODO generate an expired token somehow
+    // })
+})
