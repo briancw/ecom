@@ -20,6 +20,7 @@
   "homepage": "https://github.com/briancw/ecom#readme",
   "private": true,
   "dependencies": {
+    "argon2": "^0.20.0",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "pg": "^7.7.1",
