@@ -5,5 +5,6 @@ resetDb()
 
 require('./categories.js')
 require('./products.js')
+require('./orders.js')
 
 closeDb()
