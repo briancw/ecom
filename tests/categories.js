@@ -7,51 +7,48 @@ const {
 } = require('../controllers/categories.js')
 
 describe('Create Category', () => {
-    let newCategory = {
-        displayName: 'Test Category',
-        slug: 'test-category',
-    }
+    let displayName = 'Test Category'
+    let slug = 'test-category'
 
     it('Should return a success message when supplied valid inputs', async () => {
-        let result = await createCategory(newCategory)
+        let result = await createCategory({displayName, slug})
         assert.deepStrictEqual(result, {success: true})
     })
 
     it('Should not allow duplicates', async () => {
-        let result = await createCategory(newCategory)
+        let result = await createCategory({displayName, slug})
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
     })
 
     it('Should allow creating multiple categories', async () => {
-        newCategory.displayName = 'Test Category 2'
-        newCategory.slug = 'test-category-2'
-
-        let result = await createCategory(newCategory)
+        let result = await createCategory({displayName: 'Test Category 2', slug: 'test-category-2'})
         assert.deepStrictEqual(result, {success: true})
     })
 
     it('Should not allow empty strings', async () => {
-        newCategory.displayName = ''
-        newCategory.slug = ''
-
-        let result = await createCategory(newCategory)
+        // Empty String displayName
+        let result = await createCategory({displayName: '', slug: 'test-category-3'})
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
+
+        // Empty String slug
+        let result2 = await createCategory({displayName: 'Test Category 3', slug: ''})
+        assert.deepStrictEqual(result2, {success: false, error: 'validation error'})
     })
 
     it('Should not allow null values', async () => {
-        newCategory.displayName = null
-        newCategory.slug = 'test-category-2'
-
-        let result = await createCategory(newCategory)
+        let result = await createCategory({displayName: null, slug: 'test-category-3'})
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
+
+        let result2 = await createCategory({displayName: 'Test Category 3', slug: null})
+        assert.deepStrictEqual(result2, {success: false, error: 'validation error'})
     })
 
     it('Should not allow missing required values', async () => {
-        newCategory.displayName = 'A legit name'
-        delete newCategory.slug
-
-        let result = await createCategory(newCategory)
+        let result = await createCategory({slug: 'test-category-3'})
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
+
+        let result2 = await createCategory({displayName: 'Test Category 3'})
+        assert.deepStrictEqual(result2, {success: false, error: 'validation error'})
     })
 
     it('Should not allow no input', async () => {
