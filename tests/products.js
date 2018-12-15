@@ -5,9 +5,10 @@ const {
     updateProduct,
     deleteProduct,
 } = require('../controllers/products.js')
+const {getCategories} = require('../controllers/categories.js')
 
 describe('Insert a product into the database', () => {
-    let newProduct = {
+    let productTemplate = {
         name: 'Test Product',
         urlSlug: 'test-product',
         price: 3.50,
@@ -20,44 +21,67 @@ describe('Insert a product into the database', () => {
         isVisible: true,
     }
 
+    before('Get a category to attach products to', async () => {
+        let categories = await getCategories()
+        productTemplate.categoryId = categories[0].id
+    })
+
     it('Should return a success message when supplied valid inputs', async () => {
-        let result = await createProduct(newProduct)
+        let product = Object.assign({}, productTemplate)
+        let result = await createProduct(product)
         assert.deepStrictEqual(result, {success: true})
     })
 
+    it('Should allow creating multiple products', async () => {
+        let product = Object.assign({}, productTemplate)
+        product.name = 'Test Product 2'
+        product.urlSlug = 'test-product-2'
+        let result = await createProduct(product)
+        assert.deepStrictEqual(result, {success: true})
+    })
+
+    // Unique Tests
     it('Should not allow duplicate names', async () => {
-        newProduct.urlSlug = 'foo'
-        let result = await createProduct(newProduct)
+        let product = Object.assign({}, productTemplate)
+        product.urlSlug = 'something-different'
+        let result = await createProduct(product)
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
     })
 
     it('Should not allow duplicate url slugs', async () => {
-        newProduct.name = 'foo'
-        newProduct.urlSlug = 'test-product'
-        let result = await createProduct(newProduct)
+        let product = Object.assign({}, productTemplate)
+        product.name = 'Something Different'
+        let result = await createProduct(product)
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
     })
 
-    it('Should allow creating multiple products', async () => {
-        newProduct.name = 'Test Product 2'
-        newProduct.urlSlug = 'test-product-2'
-        let result = await createProduct(newProduct)
-        assert.deepStrictEqual(result, {success: true})
-    })
-
+    // Empty Tests
     it('Should not allow empty strings for name', async () => {
-        newProduct.name = ''
-        newProduct.urlSlug = 'random-slug'
-        let result = await createProduct(newProduct)
+        let product = Object.assign({}, productTemplate)
+        product.name = ''
+        product.urlSlug = 'random-slug'
+        let result = await createProduct(product)
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
     })
 
     it('Should not allow empty strings for url slug', async () => {
-        newProduct.name = 'random name'
-        newProduct.urlSlug = ''
-        let result = await createProduct(newProduct)
+        let product = Object.assign({}, productTemplate)
+        product.urlSlug = ''
+        product.name = 'random name'
+        let result = await createProduct(product)
         assert.deepStrictEqual(result, {success: false, error: 'validation error'})
     })
+
+    it('Should not allow empty strings for skus', async () => {
+        let product = Object.assign({}, productTemplate)
+        product.urlSlug = 'random-slug'
+        product.name = 'random name'
+        product.sku = ''
+        let result = await createProduct(product)
+        assert.deepStrictEqual(result, {success: false, error: 'validation error'})
+    })
+
+    // TODO more empty tests
 })
 
 describe('Get Products', () => {

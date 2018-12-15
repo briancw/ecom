@@ -28,39 +28,51 @@ const Model = sequelize.define('product', {
     },
     price: {
         type: Sequelize.FLOAT,
-        // allowNull: false,
     },
     sku: {
         type: Sequelize.STRING,
         allowNull: false,
+        validate: {
+            notEmpty: false,
+        },
     },
     description: {
         type: Sequelize.TEXT,
         allowNull: false,
+        validate: {
+            notEmpty: false,
+        },
     },
     weight: {
         type: Sequelize.STRING,
-        // allowNull: false,
+    },
+    sortOrder: {
+        type: Sequelize.INTEGER,
     },
     buyable: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-    },
-    sortOrder: {
-        type: Sequelize.INTEGER,
-        // allowNull: false,
+        validate: {
+            notEmpty: false,
+        },
     },
     isVariant: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
+        validate: {
+            notEmpty: false,
+        },
     },
     isVisible: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
+        validate: {
+            notEmpty: false,
+        },
     },
 })
 
-// Model.belongsTo(Category, {foreignKey: {allowNull: false}, onDelete: 'RESTRICT'}) // Can use: CASCADE
+Model.belongsTo(Category, {foreignKey: {allowNull: false}, onDelete: 'RESTRICT'}) // Can use: CASCADE
 // Model.hasMany(ProductImage, {foreignKey: {allowNull: false}, onDelete: 'RESTRICT'})
 
 // Model.belongsTo(Model, {
